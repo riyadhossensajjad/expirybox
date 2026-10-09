@@ -101,7 +101,7 @@
             // Phones: let the stretch play in the open menu, then open the page.
             e.preventDefault();
             var href = link.href;
-            setTimeout(function () { window.location.href = href; }, SQUISH_MS);
+            setTimeout(function () { window.location.href = href; }, 560);
           }
         }
       });
