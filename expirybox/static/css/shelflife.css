@@ -1545,7 +1545,13 @@ body.is-welcome .banner__glow {
   transition: opacity .3s var(--ease);
   pointer-events: none;
 }
-.searchdock:focus-within::before { opacity: 1; animation: qr-spin 4s linear infinite; }
+.searchdock:focus-within::before { animation: qr-spin 1.8s linear, outline-flash 1.8s ease forwards; }
+@keyframes outline-flash {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  65%  { opacity: 1; }
+  100% { opacity: 0; }
+}
 .searchdock:focus-within {
   box-shadow: 0 0 18px -2px color-mix(in srgb, var(--fab-a) 45%, transparent),
               0 0 36px -6px color-mix(in srgb, var(--fab-b) 40%, transparent),
