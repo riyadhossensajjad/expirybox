@@ -1530,3 +1530,25 @@ body.is-welcome .banner__glow {
      The next one shows when the current one closes; all are on the Notifications page. */
   .toasts .toast:not(:last-child) { display: none; }
 }
+
+/* Search bar: gradient outline when focused (replaces the glow behind the bar) */
+.searchdock__glow { display: none; }
+.searchdock::before {
+  content: ""; position: absolute; inset: -2px; z-index: -1;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(from var(--qr-angle, 0deg), var(--fab-a), var(--fab-b), #4f7dff, var(--fab-b), var(--fab-a));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0;
+  transition: opacity .3s var(--ease);
+  pointer-events: none;
+}
+.searchdock:focus-within::before { opacity: 1; animation: qr-spin 4s linear infinite; }
+.searchdock:focus-within {
+  box-shadow: 0 0 18px -2px color-mix(in srgb, var(--fab-a) 45%, transparent),
+              0 0 36px -6px color-mix(in srgb, var(--fab-b) 40%, transparent),
+              var(--shadow-lg);
+}
+@media (prefers-reduced-motion: reduce) { .searchdock:focus-within::before { animation: none; } }
