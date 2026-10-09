@@ -1569,3 +1569,25 @@ body.is-welcome .banner__glow {
   78%  { transform: scale(1.035, .998); animation-timing-function: cubic-bezier(.4, 0, .4, 1); }
   100% { transform: scale(1, 1); }
 }
+
+/* Sidebar liquid stretch: only the card stretches, the text stays still. */
+.sidebar.is-squish { animation: sb-liquid .6s both; will-change: transform; }
+.sidebar.is-squish > * { animation: sb-liquid-counter .6s both; }
+@keyframes sb-liquid {
+  0%   { transform: scale(1, 1);        animation-timing-function: cubic-bezier(.2, .7, .3, 1); }
+  30%  { transform: scale(1.18, .98);   animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
+  55%  { transform: scale(.96, 1.006);  animation-timing-function: cubic-bezier(.4, 0, .4, 1); }
+  78%  { transform: scale(1.025, .998); animation-timing-function: cubic-bezier(.4, 0, .4, 1); }
+  100% { transform: scale(1, 1); }
+}
+@keyframes sb-liquid-counter {
+  0%   { transform: scale(1, 1);          animation-timing-function: cubic-bezier(.2, .7, .3, 1); }
+  30%  { transform: scale(.8475, 1.0204); animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
+  55%  { transform: scale(1.0417, .994);  animation-timing-function: cubic-bezier(.4, 0, .4, 1); }
+  78%  { transform: scale(.9756, 1.002);  animation-timing-function: cubic-bezier(.4, 0, .4, 1); }
+  100% { transform: scale(1, 1); }
+}
+@media (max-width: 860px) {
+  .sidebar.is-squish, .sidebar.is-squish > * { transform-origin: 0 50%; }
+}
+@media (prefers-reduced-motion: reduce) { .sidebar.is-squish, .sidebar.is-squish > * { animation: none; } }

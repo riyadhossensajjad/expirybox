@@ -69,7 +69,7 @@
       var elapsed = Date.now() - t0;
       if (t0 && elapsed < SQUISH_MS && !calm && !isDrawer()) squish(elapsed);
     };
-   var SQUISH_MS = 420;
+    var SQUISH_MS = 600;
     var squish = function (offset) {
       sidebar.classList.remove("is-squish");
       sidebar.style.animationDelay = offset ? (-offset) + "ms" : "";
@@ -82,28 +82,16 @@
     $$(".side-nav a", sidebar).forEach(function (link) {
       link.addEventListener("click", function (e) {
         if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-        var cur = $(".side-nav a.is-active", sidebar) || link;
-        try {
-          sessionStorage.setItem("sl-nav-from", JSON.stringify({
-            y: cur.offsetTop, h: cur.offsetHeight, href: cur.href, t: Date.now()
-          }));
-        } catch (err) {}
-        // Stretch right away on this page; the next page picks up the same motion.
-                if (!calm) {
-          if (!isDrawer()) {
-            try { sessionStorage.setItem("sl-squish", String(Date.now())); } catch (err) {}
-          }
-          squish(0);
-          $$(".side-nav a.is-active", sidebar).forEach(function (a) { a.classList.remove("is-active"); });
-          link.classList.add("is-active");
-          placePill(link, true);
-          if (isDrawer()) {
-            // Phones: let the stretch play in the open menu, then open the page.
-            e.preventDefault();
-            var href = link.href;
-            setTimeout(function () { window.location.href = href; }, 560);
-          }
-        }
+        if (calm || link.classList.contains("is-active")) return;
+        // Play the whole stretch and the highlight slide here, then open the page.
+        // The next page simply shows the highlight in place, so nothing jumps.
+        e.preventDefault();
+        squish(0);
+        $$(".side-nav a.is-active", sidebar).forEach(function (a) { a.classList.remove("is-active"); });
+        link.classList.add("is-active");
+        placePill(link, true);
+        var href = link.href;
+        setTimeout(function () { window.location.href = href; }, SQUISH_MS - 40);
       });
     });
     // When the page actually unloads, remember where the highlight is on screen
