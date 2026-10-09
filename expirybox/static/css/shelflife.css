@@ -1586,7 +1586,4 @@ body.is-welcome .banner__glow {
   78%  { transform: scale(.9756, 1.002);  animation-timing-function: cubic-bezier(.4, 0, .4, 1); }
   100% { transform: scale(1, 1); }
 }
-@media (max-width: 860px) {
-  .sidebar.is-squish, .sidebar.is-squish > * { transform-origin: 0 50%; }
-}
 @media (prefers-reduced-motion: reduce) { .sidebar.is-squish, .sidebar.is-squish > * { animation: none; } }
