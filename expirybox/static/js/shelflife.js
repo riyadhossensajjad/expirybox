@@ -89,12 +89,20 @@
           }));
         } catch (err) {}
         // Stretch right away on this page; the next page picks up the same motion.
-        if (!calm && !isDrawer()) {
-          try { sessionStorage.setItem("sl-squish", String(Date.now())); } catch (err) {}
+                if (!calm) {
+          if (!isDrawer()) {
+            try { sessionStorage.setItem("sl-squish", String(Date.now())); } catch (err) {}
+          }
           squish(0);
           $$(".side-nav a.is-active", sidebar).forEach(function (a) { a.classList.remove("is-active"); });
           link.classList.add("is-active");
           placePill(link, true);
+          if (isDrawer()) {
+            // Phones: let the stretch play in the open menu, then open the page.
+            e.preventDefault();
+            var href = link.href;
+            setTimeout(function () { window.location.href = href; }, SQUISH_MS);
+          }
         }
       });
     });

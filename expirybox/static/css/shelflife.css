@@ -1041,7 +1041,6 @@ a.stat:hover { border-color: var(--line-strong); transform: translateY(-2px); }
   40%  { transform: scaleX(1.09); animation-timing-function: cubic-bezier(.45, 0, .2, 1); }
   100% { transform: scaleX(1); }
 }
-@media (max-width: 860px) { .sidebar.is-squish { animation: none; } }
 @media (prefers-reduced-motion: reduce) {
   .sidebar.is-squish { animation: none; }
   .side-nav__pill.is-sliding { transition: none; }
