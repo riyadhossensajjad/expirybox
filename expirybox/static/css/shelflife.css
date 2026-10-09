@@ -1572,7 +1572,6 @@ body.is-welcome .banner__glow {
 
 /* Sidebar liquid stretch: only the card stretches, the text stays still. */
 .sidebar.is-squish { animation: sb-liquid .6s both; will-change: transform; }
-.sidebar.is-squish > * { animation: sb-liquid-counter .6s both; }
 @keyframes sb-liquid {
   0%   { transform: scale(1, 1);        animation-timing-function: cubic-bezier(.2, .7, .3, 1); }
   30%  { transform: scale(1.18, .98);   animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
