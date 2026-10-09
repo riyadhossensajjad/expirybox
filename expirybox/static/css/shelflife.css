@@ -884,12 +884,14 @@ a.stat:hover { border-color: var(--line-strong); transform: translateY(-2px); }
   .main { height: auto; overflow: visible; }
   .scrim { display: block; }
   .sidebar {
-  position: fixed; top: 12px; left: 12px; bottom: 12px;
-  top: calc(12px + env(safe-area-inset-top)); bottom: calc(12px + env(safe-area-inset-bottom));
-  width: min(300px, 82vw); height: auto;
-  margin: 0; border-radius: var(--r-lg);
-  transform: translateX(calc(-100% - 24px));
-    
+    position: fixed; top: 12px; left: 12px; bottom: 12px;
+    top: calc(12px + env(safe-area-inset-top)); bottom: calc(12px + env(safe-area-inset-bottom));
+    width: min(300px, 82vw); height: auto;
+    margin: 0; border-radius: var(--r-lg);
+    transform: translateX(calc(-100% - 24px));
+    transition: transform .35s var(--ease);
+    z-index: 70;
+  }
   body.nav-open .sidebar { transform: none; box-shadow: var(--shadow-lg); }
   .scrim { position: fixed; inset: 0; z-index: 65; background: rgba(0, 0, 0, .35); opacity: 0; pointer-events: none; transition: opacity .3s; }
   body.nav-open .scrim { opacity: 1; pointer-events: auto; }
@@ -1496,6 +1498,9 @@ body.is-welcome .banner__glow {
   body:has(.main :is(input, textarea, select):focus) :is(.searchdock, .searchdock__glow, .fab) {
     opacity: 0; visibility: hidden; pointer-events: none;
   }
+
+  /* While the menu is open, keep pop-ups and the + button out of its way. */
+  body.nav-open :is(.toasts, .fab) { opacity: 0; visibility: hidden; pointer-events: none; }
 
   /* No grey flash on tap. */
   a, button, summary, label { -webkit-tap-highlight-color: transparent; }
