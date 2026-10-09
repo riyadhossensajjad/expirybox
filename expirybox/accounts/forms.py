@@ -13,7 +13,6 @@ class SignUpForm(PhotoFieldMixin, GlassFormMixin, UserCreationForm):
         model = User
         fields = ["avatar", "name", "email", "phone", "address"]
         labels = {"name": "Full name", "address": "Area or address"}
-        help_texts = {"address": "Buyers see this as your default pickup area."}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
