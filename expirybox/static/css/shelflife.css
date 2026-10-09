@@ -1558,18 +1558,6 @@ body.is-welcome .banner__glow {
 }
 @media (prefers-reduced-motion: reduce) { .searchdock:focus-within::before { animation: none; } }
 
-/* Phone menu: liquid stretch pulled from the left edge — grows, overshoots, settles. */
-@media (max-width: 860px) {
-  .sidebar.is-squish { animation: sb-squish-m .62s both; transform-origin: 0 50%; }
-}
-@keyframes sb-squish-m {
-  0%   { transform: scale(1, 1);        animation-timing-function: cubic-bezier(.2, .7, .3, 1); }
-  30%  { transform: scale(1.22, .975);  animation-timing-function: cubic-bezier(.4, 0, .3, 1); }
-  55%  { transform: scale(.95, 1.008);  animation-timing-function: cubic-bezier(.4, 0, .4, 1); }
-  78%  { transform: scale(1.035, .998); animation-timing-function: cubic-bezier(.4, 0, .4, 1); }
-  100% { transform: scale(1, 1); }
-}
-
 /* Sidebar liquid stretch: only the card stretches, the text stays still. */
 .sidebar.is-squish { animation: sb-liquid .6s both; will-change: transform; }
 @keyframes sb-liquid {
