@@ -86,6 +86,17 @@
         // Play the whole stretch and the highlight slide here, then open the page.
         // The next page simply shows the highlight in place, so nothing jumps.
         e.preventDefault();
+        // Start loading the next page right away, while the menu animates.
+        try {
+          var sr = document.createElement("script");
+          sr.type = "speculationrules";
+          sr.textContent = JSON.stringify({ prerender: [{ source: "list", urls: [link.href], eagerness: "immediate" }] });
+          document.head.appendChild(sr);
+        } catch (err) {}
+        var pf = document.createElement("link");
+        pf.rel = "prefetch"; pf.href = link.href;
+        document.head.appendChild(pf);
+        squish(0);
         squish(0);
         $$(".side-nav a.is-active", sidebar).forEach(function (a) { a.classList.remove("is-active"); });
         link.classList.add("is-active");
