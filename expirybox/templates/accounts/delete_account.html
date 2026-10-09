@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Delete account{% endblock %}
+{% block content %}
+<div class="auth">
+  <div class="auth__card glass glass--strong">
+    <h1>Delete your account?</h1>
+    <p>Your {{ user.items.count }} item{{ user.items.count|pluralize }}, reminders, listings and impact history will be permanently removed. This can't be undone.</p>
+    <form method="post" class="row" style="justify-content:center">
+      {% csrf_token %}
+      <a class="btn" href="{% url 'accounts:profile' %}">Keep my account</a>
+      <button class="btn btn--danger-solid" type="submit">Delete account</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

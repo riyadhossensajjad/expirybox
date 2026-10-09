@@ -1,0 +1,15 @@
+<div class="ring ring--{{ size }}" data-tone="{{ item.freshness }}" style="--pct: {{ item.freshness_pct }}" role="img" aria-label="{{ item.days_left_label }}">
+  <div>
+  {% if item.is_open and item.days_left > 0 %}
+    <span class="ring__num">{{ item.days_left }}</span><span class="ring__unit">{% if item.days_left == 1 %}day{% else %}days{% endif %}</span>
+  {% elif item.is_open and item.days_left == 0 %}
+    <span class="ring__num">0</span><span class="ring__unit">today</span>
+  {% elif item.status == 'USED' %}
+    <span class="ring__num">✓</span><span class="ring__unit">used</span>
+  {% elif item.status == 'SOLD' %}
+    <span class="ring__num">✓</span><span class="ring__unit">sold</span>
+  {% else %}
+    <span class="ring__num">–</span><span class="ring__unit">expired</span>
+  {% endif %}
+  </div>
+</div>

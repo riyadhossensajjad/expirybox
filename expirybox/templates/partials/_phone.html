@@ -1,0 +1,23 @@
+{% load shelf %}
+<div class="phone" aria-label="Shop preview">
+  <div class="phone__top">
+    <span class="brand__mark" aria-hidden="true"></span>
+    <span class="row" style="gap:12px;flex-wrap:nowrap"><span>Shop</span><span>Reviews</span>{% icon 'share' %}</span>
+  </div>
+  <div class="phone__head">
+    {% if person %}{% avatar person 'lg' %}{% else %}<span class="avatar avatar--lg">{{ initials }}</span>{% endif %}
+    <div class="phone__name">{{ name }}</div>
+    <div class="phone__meta">{{ meta }}</div>
+  </div>
+  <div class="phone__links">
+    {% for l in links %}
+    <a class="phone__link" href="{{ l.get_absolute_url }}"><span>{{ l.item.item_name }}</span><span>{{ l.sale_price|money }}</span></a>
+    {% empty %}
+    <div class="phone__empty">{{ empty_text }}</div>
+    {% endfor %}
+  </div>
+  <div class="phone__foot">
+    <span class="phone__join">{{ join_text }}</span>
+    <span class="phone__legal">Cookie preferences · Report · Privacy</span>
+  </div>
+</div>

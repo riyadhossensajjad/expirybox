@@ -1,0 +1,47 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}{{ seller.name }}{% endblock %}
+{% block content %}
+<div class="page">
+  <a class="back" href="{% url 'marketplace:browse' %}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>Shop</a>
+  <section class="panel glass" style="margin-bottom:32px">
+    <div class="row" style="gap:20px">
+      {% avatar seller 'lg' %}
+      <div class="spacer">
+        <h1 style="font-size:var(--t-xl)">{{ seller.name }}</h1>
+        <p class="muted" style="margin:4px 0 0">{% if seller.address %}{{ seller.address }} · {% endif %}Selling since {{ seller.created_at|date:"F Y" }}</p>
+      </div>
+      <div style="text-align:right">
+        {% if seller.seller_rating %}
+          <div class="stat__value">{{ seller.seller_rating }} <span style="color:#ffb300">★</span></div>
+          <div class="muted" style="font-size:13px">{{ reviews|length }} review{{ reviews|length|pluralize }}</div>
+        {% else %}<span class="muted">No reviews yet</span>{% endif %}
+      </div>
+    </div>
+  </section>
+
+  <h2 style="margin-bottom:16px">Available now</h2>
+  {% if listings %}
+  <div class="grid grid--cards">{% for listing in listings %}{% include "partials/_listing_card.html" %}{% endfor %}</div>
+  {% else %}
+  <div class="empty glass"><h3>Nothing for sale right now</h3><p>Check back later — {{ seller.get_short_name }} lists items as they near their dates.</p></div>
+  {% endif %}
+
+  {% if reviews %}
+  <h2 class="section-title">Reviews</h2>
+  <div class="panel glass">
+    <ul class="list">
+      {% for r in reviews %}
+      <li class="list__row" style="align-items:flex-start">
+        {% avatar r.reviewer %}
+        <div class="list__main">
+          <div class="row" style="gap:8px"><strong style="font-size:14px">{{ r.reviewer.name }}</strong><span style="color:#ffb300;letter-spacing:1px">{{ r.rating|stars }}</span></div>
+          {% if r.comment %}<p style="margin:4px 0 0;font-size:14px">{{ r.comment }}</p>{% endif %}
+          <div class="list__sub">{{ r.order.listing.item.item_name }} · {{ r.created_at|date:"M j, Y" }}</div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% load static shelf %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}{{ SITE_NAME }}{% endblock %} · {{ SITE_NAME }}</title>
+  {# Apply the saved theme before first paint so the page never flashes the wrong colours. #}
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("sl-theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+      document.documentElement.classList.add("js");
+    })();
+  </script>
+  {# Chrome/Edge start loading a sidebar page while you hover it, so the click opens it instantly. #}
+  <script type="speculationrules">
+    {"prerender": [{"where": {"selector_matches": ".side-nav a"}, "eagerness": "moderate"}]}
+  </script>
+  {# Font is served from this site (see the top of shelflife.css); preloading it avoids a flash of the fallback font. #}
+  <link rel="preload" href="{% static 'fonts/plus-jakarta-sans-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% asset 'css/shelflife.css' %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/logo.svg' %}">
+</head>
+<body class="{% if user.is_authenticated %}is-app{% if welcome %} is-welcome{% endif %}{% else %}is-public{% endif %}"
+      {% if user.is_authenticated %}data-feed-url="{% url 'notifications:feed' %}" data-user="{{ user.pk }}"{% endif %}>
+
+{% if user.is_authenticated %}
+  {# ------------------------------------------------------------ announcement bar #}
+  <div class="banner" role="region" aria-label="Announcement">
+    {% if welcome %}<span class="banner__glow" aria-hidden="true"></span>{% endif %}
+    <a class="banner__mark" href="{% url 'items:dashboard' %}" aria-label="{{ SITE_NAME }} home"><span class="brand__mark"></span></a>
+    <p class="banner__text">
+      {% if week_expiring_count %}
+        {{ week_expiring_count }} item{{ week_expiring_count|pluralize }} expire{{ week_expiring_count|pluralize:"s," }} this week. Sell what you won't use before it goes to waste.
+      {% else %}
+        Nothing expires this week. Turn what you won't use into money in the shop.
+      {% endif %}
+    </p>
+    {% if week_expiring_count %}
+      <a class="banner__cta" href="{% url 'items:list' %}">{% icon 'tag' %}Sell now</a>
+    {% else %}
+      <a class="banner__cta" href="{% url 'marketplace:browse' %}">{% icon 'bag' %}Browse deals</a>
+    {% endif %}
+  </div>
+
+  <div class="shell">
+    {# ---------------------------------------------------------- sidebar #}
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sidebar__top">
+        <details class="menu account">
+          <summary class="account__pill">
+            {% avatar user 'sm' %}
+            <span class="account__name">{{ user.name|upper }}</span>
+            {% icon 'chevron-down' %}
+          </summary>
+          <div class="menu__panel">
+            <div class="menu__head"><strong>{{ user.name }}</strong><span>{{ user.email }}</span></div>
+            <a href="{% url 'accounts:profile' %}">{% icon 'user' %}Profile and password</a>
+            <a href="{% url 'accounts:seller' user.pk %}">{% icon 'store' %}My public shop</a>
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button type="submit">{% icon 'logout' %}Sign out</button></form>
+          </div>
+        </details>
+        <button class="icon-btn bell" type="button" data-popover-toggle aria-expanded="false" aria-controls="note-popover" title="Notifications">
+          {% icon 'bell' 'Notifications' %}
+          <span class="badge" data-unread {% if not unread_count %}hidden{% endif %}>{{ unread_count|stringformat:"d" }}</span>
+        </button>
+      </div>
+
+      <nav class="side-nav">
+        <span class="side-nav__pill" aria-hidden="true"></span>
+        <a href="{% url 'items:dashboard' %}" class="{% active '/items/dashboard' %}">{% icon 'grid' %}Today</a>
+        <a href="{% url 'items:list' %}" class="{% if request.resolver_match.app_name == 'items' and request.resolver_match.url_name != 'dashboard' %}is-active{% endif %}">{% icon 'box' %}My items{% if week_expiring_count %}<span class="pill-badge">{{ week_expiring_count }} soon</span>{% endif %}</a>
+        <a href="{% url 'marketplace:browse' %}" class="{% if request.path == '/market/' or '/market/listing/' in request.path %}is-active{% endif %}">{% icon 'bag' %}Shop</a>
+        <a href="{% url 'notifications:list' %}" class="{% active '/notifications/' %}">{% icon 'bell' %}Notifications{% if unread_count %}<span class="pill-badge" data-unread-pill>{{ unread_count }} new</span>{% endif %}</a>
+        <a href="{% url 'impact:overview' %}" class="{% active '/impact/' %}">{% icon 'chart' %}Impact</a>
+
+        <span class="side-label">Selling</span>
+        <a href="{% url 'marketplace:selling' %}" class="{% active '/market/selling' '/market/sell/' %}">{% icon 'tag' %}Selling</a>
+        <a href="{% url 'marketplace:buying' %}" class="{% active '/market/orders' %}">{% icon 'receipt' %}My orders</a>
+        <a href="{% url 'accounts:seller' user.pk %}" class="{% active '/accounts/seller' %}">{% icon 'store' %}My shop</a>
+
+        <span class="side-label">Account</span>
+        <a href="{% url 'accounts:profile' %}" class="{% active '/accounts/profile' '/accounts/delete' %}">{% icon 'settings' %}Settings</a>
+        {% if user.is_staff %}<a href="{% url 'admin:index' %}">{% icon 'shield' %}Admin</a>{% endif %}
+      </nav>
+
+      <div class="sidebar__bottom">
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch between light and dark mode">
+          <span class="theme-toggle__opt theme-toggle__opt--light">{% icon 'sun' %}Light</span>
+          <span class="theme-toggle__opt theme-toggle__opt--dark">{% icon 'moon' %}Dark</span>
+        </button>
+      </div>
+    </aside>
+    <div class="scrim" data-nav-close></div>
+
+    {# ---------------------------------------------------------- notification popover #}
+    <section class="popover" id="note-popover" hidden aria-label="Recent notifications">
+      <div class="popover__head">
+        <h4>Notifications</h4>
+        {% if unread_count %}
+        <form method="post" action="{% url 'notifications:mark_all_read' %}">{% csrf_token %}<button class="btn btn--plain btn--sm" type="submit">Mark all read</button></form>
+        {% endif %}
+      </div>
+      {% if popover_notes %}
+      <ul class="list">
+        {% for n in popover_notes %}
+        <li><a class="list__row" href="{% url 'notifications:open' n.pk %}">
+          {% include "partials/_note_icon.html" %}
+          <div class="list__main">
+            <div class="list__title wrap{% if not n.is_read %} is-unread{% endif %}">{{ n.message }}</div>
+            <div class="list__sub">{{ n.created_at|timesince }} ago</div>
+          </div>
+          <span class="dot{% if n.is_read %} dot--off{% endif %}"></span>
+        </a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted" style="padding:8px 4px 4px;margin:0">Reminders and order updates will appear here.</p>
+      {% endif %}
+      <a class="popover__all" href="{% url 'notifications:list' %}">See all notifications</a>
+    </section>
+
+    {# ---------------------------------------------------------- main #}
+    <div class="main">
+      <header class="mainbar">
+        <button class="icon-btn mainbar__menu" type="button" data-nav-open aria-label="Open menu" aria-controls="sidebar">{% icon 'menu' %}</button>
+        <button class="btn btn--soft mainbar__share" type="button" data-share="{{ request.scheme }}://{{ request.get_host }}{% url 'accounts:seller' user.pk %}">{% icon 'share' %}<span>Share shop</span></button>
+      </header>
+
+      <div class="workspace {% block workspace_class %}{% endblock %}">
+        <main id="main" class="workspace__main">
+{% else %}
+  {# ------------------------------------------------------------ public header #}
+  <header class="public-bar">
+    <a class="brand" href="{% url 'home' %}"><span class="brand__mark" aria-hidden="true"></span>{{ SITE_NAME }}</a>
+    <div class="public-bar__actions">
+      <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch between light and dark mode">
+        <span class="only-light">{% icon 'moon' %}</span><span class="only-dark">{% icon 'sun' %}</span>
+      </button>
+      <a class="btn btn--plain btn--sm" href="{% url 'accounts:login' %}">Log in</a>
+      <a class="btn btn--primary btn--sm" href="{% url 'accounts:signup' %}">Sign up free</a>
+    </div>
+  </header>
+  {% with page=request.resolver_match.url_name %}{% if page == 'home' or page == 'login' or page == 'signup' %}
+  {# Flowing gradient ribbon behind the landing, log-in and sign-up pages #}
+  <div class="aurora" aria-hidden="true"><canvas id="aurora-glow" class="aurora__glow"></canvas><canvas id="aurora"></canvas><canvas id="aurora-dots" class="aurora__dotcanvas"></canvas><div class="aurora__icons"></div></div>
+  <script src="{% asset 'js/aurora.js' %}" defer></script>
+  {% endif %}{% endwith %}
+  <main id="main" class="public-main">
+{% endif %}
+{% block content %}{% endblock %}
+  </main>
+{% if user.is_authenticated %}
+        {% block aside %}{% endblock %}
+      </div>
+    </div>
+  </div>
+  {# Floating, frosted search bar at the bottom of the page #}
+  <form class="searchdock" method="get" action="{% url 'items:list' %}" role="search" data-suggest-url="{% url 'items:suggest' %}">
+    {% icon 'search' %}
+    <label class="sr-only" for="global-search">Search your items</label>
+    <input id="global-search" type="search" name="q" placeholder="Search your items" autocomplete="off"
+           role="combobox" aria-expanded="false" aria-controls="search-suggest" aria-autocomplete="list"
+           value="{% if request.resolver_match.url_name == 'list' %}{{ request.GET.q }}{% endif %}">
+    <kbd class="searchdock__kbd" aria-hidden="true">/</kbd>
+    <div class="suggest" id="search-suggest" role="listbox" aria-label="Matching items" hidden></div>
+  </form>
+  <span class="searchdock__glow" aria-hidden="true"></span>
+
+  <a class="fab" href="{% url 'items:create' %}" title="Add an item" aria-label="Add an item">{% icon 'plus' %}</a>
+{% endif %}
+
+  {% if celebrate %}
+  <div class="celebrate" data-celebrate role="status" aria-live="polite">
+    <span class="celebrate__glow" aria-hidden="true"></span>
+    <div class="celebrate__badge">
+      <span class="celebrate__ripple"></span>
+      <span class="celebrate__burst" aria-hidden="true">{% for i in "12345678" %}<i style="--i:{{ forloop.counter0 }}"></i>{% endfor %}</span>
+      <svg class="celebrate__tick" viewBox="0 0 52 52" aria-hidden="true"><path d="M15.5 27.5l7.2 7.2L37 19.5"/></svg>
+    </div>
+    <span class="sr-only">{{ celebrate.title }}. {{ celebrate.text }}</span>
+  </div>
+  {% endif %}
+
+  {# Flash messages and live notification pop-ups share one stack. #}
+  <div class="toasts" data-toasts role="status" aria-live="polite">
+    {% for m in messages %}
+    <div class="toast toast--{{ m.tags|default:'info' }}">
+      <span class="toast__icon">{% if m.tags == 'error' %}{% icon 'x' %}{% elif m.tags == 'info' %}{% icon 'info' %}{% else %}{% icon 'check' %}{% endif %}</span>
+      <div class="toast__body"><p>{{ m }}</p></div>
+      <button type="button" class="toast__close" aria-label="Dismiss">{% icon 'x' %}</button>
+    </div>
+    {% endfor %}
+  </div>
+
+  <script src="{% asset 'js/shelflife.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

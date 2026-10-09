@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<div class="auth">
+  <div class="auth__card glass glass--strong">
+    <div class="auth__mark"><span class="brand__mark"></span></div>
+    <h1>Sign in to {{ SITE_NAME }}</h1>
+    <p>See what's expiring and what's sold.</p>
+    <form method="post" class="form" novalidate>
+      {% csrf_token %}
+      {% include "partials/_form_errors.html" %}
+      {% field form.username %}
+      {% field form.password %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <button class="btn btn--primary btn--block" type="submit">Sign in</button>
+    </form>
+    <p class="auth__alt">New here? <a href="{% url 'accounts:signup' %}">Create an account</a></p>
+    {% if show_demo_hint %}
+    <div class="demo-hint">Demo data loaded? Try <code>ayesha@example.com</code> with <code>shelflife123</code>.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

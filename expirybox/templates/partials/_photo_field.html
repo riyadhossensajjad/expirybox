@@ -1,0 +1,20 @@
+{% load shelf %}
+<div class="field{% if f.errors %} has-error{% endif %}">
+  <span class="field__label">{{ label }} <span class="muted" style="font-weight:400">(optional)</span></span>
+  <label class="upload{% if round %} upload--round{% endif %}">
+    <span class="upload__preview">
+      <img alt="" data-upload-preview {% if current %}src="{{ current }}"{% else %}hidden{% endif %}>
+      <span data-upload-icon {% if current %}hidden{% endif %}>{% icon 'camera' %}</span>
+    </span>
+    <span class="upload__text">
+      <strong data-upload-name>{% if current %}Change photo{% else %}{{ cta|default:"Add a photo" }}{% endif %}</strong>
+      <span>JPG, PNG or WebP, up to 5 MB</span>
+    </span>
+    <span class="upload__btn">Choose file</span>
+    {{ f }}
+  </label>
+  {% if current %}
+  <label class="check"><input type="checkbox" name="{{ remove.html_name }}"> Remove photo</label>
+  {% endif %}
+  {% for e in f.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
+</div>

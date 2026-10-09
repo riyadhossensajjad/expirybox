@@ -1,0 +1,32 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}My orders{% endblock %}
+{% block content %}
+<div class="page page--mid">
+  <div class="page-head">
+    <div><h1>My orders</h1><p>Things you've bought in the shop.</p></div>
+    <a class="btn" href="{% url 'marketplace:browse' %}">{% icon 'bag' %}Shop</a>
+  </div>
+  {% if orders %}
+  <div class="panel glass panel--tight">
+    <ul class="list">
+      {% for o in orders %}
+      <li><a class="list__row" href="{{ o.get_absolute_url }}">
+        {% freshness_ring o.listing.item 'sm' %}
+        <div class="list__main">
+          <div class="list__title">{{ o.quantity }} × {{ o.listing.item.item_name }}</div>
+          <div class="list__sub">#{{ o.pk }} · from {{ o.listing.seller.name }} · {{ o.created_at|date:"M j" }}</div>
+        </div>
+        <div class="list__end"><div class="num" style="font-weight:600">{{ o.total_price|money }}</div><span class="tag tag--{{ o.status }}">{{ o.get_status_display }}</span></div>
+      </a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <div class="empty glass">
+    <h3>No orders yet</h3>
+    <p>Find something good before its date and save money doing it.</p>
+    <a class="btn btn--primary" href="{% url 'marketplace:browse' %}">Browse the shop</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

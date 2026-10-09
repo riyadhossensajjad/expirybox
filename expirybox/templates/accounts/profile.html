@@ -1,0 +1,57 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="page page--mid">
+  <div class="page-head">
+    <div class="row" style="gap:18px">
+      {% avatar user 'lg' %}
+      <div>
+        <h1 style="font-size:var(--t-xl)">{{ user.name }}</h1>
+        <p style="margin:2px 0 0">Member since {{ user.created_at|date:"F Y" }}{% if user.seller_rating %} · {{ user.seller_rating }}★ seller rating{% endif %}</p>
+      </div>
+    </div>
+    <a class="btn" href="{% url 'accounts:seller' user.pk %}">View public seller page</a>
+  </div>
+
+  <div class="stack">
+    <section class="panel glass">
+      <div class="panel__head"><h3>Profile</h3></div>
+      <form method="post" class="form" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% include "partials/_photo_field.html" with f=profile_form.avatar remove=profile_form.remove_photo current=user.avatar|photo_url label="Profile picture" round=True cta="Upload a profile picture" %}
+        <div class="form-grid">
+          {% field profile_form.name %}
+          {% field profile_form.email %}
+          {% field profile_form.phone %}
+          {% field profile_form.address "Used as the default pickup area for your listings." %}
+        </div>
+        <div><button class="btn btn--primary" name="save_profile" type="submit">Save profile</button></div>
+      </form>
+    </section>
+
+    <section class="panel glass">
+      <div class="panel__head"><h3>Password</h3></div>
+      <form method="post" class="form" novalidate>
+        {% csrf_token %}
+        {% include "partials/_form_errors.html" with form=password_form %}
+        {% field password_form.old_password %}
+        <div class="form-grid">
+          {% field password_form.new_password1 "At least 8 characters, not only numbers." %}
+          {% field password_form.new_password2 %}
+        </div>
+        <div><button class="btn" name="change_password" type="submit">Change password</button></div>
+      </form>
+    </section>
+
+    <section class="panel glass">
+      <div class="row row--between">
+        <div>
+          <h3>Delete account</h3>
+          <p class="muted" style="margin:4px 0 0">Removes your items, reminders, listings and history.</p>
+        </div>
+        <a class="btn btn--danger" href="{% url 'accounts:delete' %}">Delete account…</a>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

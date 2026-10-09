@@ -1,0 +1,58 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}My items{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>My items</h1>
+      <p>Sorted by what expires first.</p>
+    </div>
+    <a class="btn btn--primary" href="{% url 'items:create' %}">{% icon 'plus' %}Add item</a>
+  </div>
+
+  <form class="toolbar" method="get">
+    <div class="segmented glass">
+      {% for key, label in views %}
+      <a href="?view={{ key }}" class="{% if key == view %}is-active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+    <input type="hidden" name="view" value="{{ view }}">
+    <label class="search"><span class="sr-only">Search items</span>{% icon 'search' %}
+      <input class="input" type="search" name="q" value="{{ q }}" placeholder="Search name, shop or batch no.">
+    </label>
+    <select class="select" name="category" onchange="this.form.submit()" aria-label="Category">
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c.pk }}" {% if category_id == c.pk|stringformat:"d" %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+  </form>
+
+  {% if items %}
+  <div class="grid grid--cards">
+    {% for item in items %}{% include "partials/_item_card.html" %}{% endfor %}
+  </div>
+  {% elif q or category_id %}
+  <div class="empty glass">
+    <h3>No items match</h3>
+    <p>Try a different word or category.</p>
+    <a class="btn" href="?view={{ view }}">Clear filters</a>
+  </div>
+  {% elif view == 'history' %}
+  <div class="empty glass">
+    <h3>No history yet</h3>
+    <p>Items you use, sell, or that expire move here.</p>
+  </div>
+  {% elif view == 'listed' %}
+  <div class="empty glass">
+    <h3>Nothing listed for sale</h3>
+    <p>Open an item that's expiring soon and choose "Sell in the shop".</p>
+  </div>
+  {% else %}
+  <div class="empty glass">
+    <div class="ring ring--md empty__ring" style="--pct:70"><div><span class="ring__num">+</span></div></div>
+    <h3>Add your first item</h3>
+    <p>Enter the expiry date and we'll remind you a week, three days and one day before.</p>
+    <a class="btn btn--primary" href="{% url 'items:create' %}">Add item</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

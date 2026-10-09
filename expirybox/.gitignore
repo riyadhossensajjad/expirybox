@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+db.sqlite3
+staticfiles/
+.venv/
+venv/
+.idea/
+.env
+media/
+.env*
+.vercel/
+db.sqlite3-wal
+db.sqlite3-shm

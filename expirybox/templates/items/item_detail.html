@@ -1,0 +1,146 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}{{ item.item_name }}{% endblock %}
+{% block content %}
+<div class="page">
+  <a class="back" href="{% url 'items:list' %}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>My items</a>
+
+  <div class="split">
+    <div class="stack">
+      <section class="panel glass" style="padding:32px">
+        {% if item.image %}<img class="detail-photo" src="{{ item.image|photo_url }}" alt="{{ item.item_name }}">{% endif %}
+        <div class="row" style="gap:32px;align-items:center">
+          {% freshness_ring item 'lg' %}
+          <div class="spacer" style="min-width:220px">
+            <span class="tag tag--{{ item.status }}">{{ item.get_status_display }}</span>
+            <h1 style="margin:10px 0 6px;font-size:var(--t-xl)">{{ item.item_name }}</h1>
+            <p class="muted-2" style="margin:0">{{ item.days_left_label }} · {{ item.expiry_date|date:"l, F j, Y" }}</p>
+          </div>
+        </div>
+
+        {% if item.is_open %}
+        <div class="row" style="margin-top:28px">
+          {% if item.can_be_listed %}
+            <a class="btn btn--primary" href="{% url 'marketplace:listing_create' item.pk %}">{% icon 'tag' %}Sell in the shop</a>
+          {% elif item.active_listing %}
+            <a class="btn btn--primary" href="{{ item.active_listing.get_absolute_url }}">{% icon 'tag' %}View listing</a>
+          {% endif %}
+          <a class="btn" href="{% url 'items:update' item.pk %}">{% icon 'edit' %}Edit</a>
+          <a class="btn btn--danger" href="{% url 'items:delete' item.pk %}">{% icon 'trash' %}Delete</a>
+        </div>
+        {% endif %}
+      </section>
+
+      {% if item.status == 'ACTIVE' %}
+      <section class="panel glass">
+        <h3>Used it up?</h3>
+        <p class="muted" style="margin:4px 0 16px">Mark it used so it counts as saved, and its reminders stop.</p>
+        <form method="post" action="{% url 'items:mark_used' item.pk %}" class="row" style="align-items:flex-end">
+          {% csrf_token %}
+          <div class="field" style="flex:1 1 200px">
+            <label class="field__label" for="id_amount_value">{{ used_form.amount_value.label }} <span class="muted" style="font-weight:400">(optional)</span></label>
+            <div class="input-prefix"><span>{{ CURRENCY }}</span>{{ used_form.amount_value }}</div>
+          </div>
+          <button class="btn" type="submit">{% icon 'check' %}Mark as used</button>
+        </form>
+      </section>
+      {% endif %}
+
+      <section class="panel glass">
+        <h3 style="margin-bottom:16px">Details</h3>
+        <dl class="facts">
+          <dt>Value</dt><dd>{{ item.price|money }}</dd>
+          <dt>Category</dt><dd>{{ item.category|default:"—" }}</dd>
+          <dt>Bought from</dt><dd>{{ item.provider|default:"—" }}</dd>
+          <dt>Purchased</dt><dd>{{ item.purchase_date|date:"M j, Y"|default:"—" }}</dd>
+          <dt>Expires</dt><dd>{{ item.expiry_date|date:"M j, Y" }}</dd>
+          <dt>Batch / receipt</dt><dd>{{ item.reference_number|default:"—" }}</dd>
+          <dt>Added</dt><dd>{{ item.created_at|date:"M j, Y" }}</dd>
+          {% with po=item.purchase_order %}{% if po %}<dt>Bought in the shop</dt><dd><a href="{{ po.get_absolute_url }}" style="text-decoration:underline">Order #{{ po.pk }} from {{ po.listing.seller.name }}</a></dd>{% endif %}{% endwith %}
+        </dl>
+        {% if item.description %}<p style="margin:18px 0 0">{{ item.description|linebreaksbr }}</p>{% endif %}
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="panel glass">
+        <div class="panel__head"><h3>Reminders</h3></div>
+        {% if reminders %}
+        <ul class="list">
+          {% for r in reminders %}
+          <li class="list__row">
+            <span class="note-icon" data-type="{% if r.is_sent %}PAYMENT{% else %}EXPIRY{% endif %}">{% if r.is_sent %}{% icon 'check' %}{% else %}{% icon 'clock' %}{% endif %}</span>
+            <div class="list__main">
+              <div class="list__title">{{ r.reminder_date|date:"D, M j" }}</div>
+              <div class="list__sub">{{ r.get_reminder_type_display }}{% if r.is_sent %} · sent{% endif %}</div>
+            </div>
+            {% if not r.is_sent %}
+            <form method="post" action="{% url 'notifications:reminder_delete' r.pk %}">{% csrf_token %}
+              <button class="icon-btn" type="submit" title="Remove reminder" style="width:34px;height:34px">{% icon 'x' 'Remove reminder' %}</button>
+            </form>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted">No reminders.</p>
+        {% endif %}
+        {% if item.is_open %}
+        <form method="post" action="{% url 'notifications:reminder_add' item.pk %}" class="row" style="margin-top:14px;align-items:flex-end;flex-wrap:nowrap">
+          {% csrf_token %}
+          <div class="field" style="flex:1">
+            <label class="field__label" for="id_reminder_date">Add a reminder</label>
+            {{ reminder_form.reminder_date }}
+          </div>
+          <button class="btn" type="submit">Add</button>
+        </form>
+        {% endif %}
+      </section>
+
+      <section class="panel glass">
+        <div class="panel__head"><h3>QR label</h3></div>
+        <div class="qr-label">
+          <img src="{% url 'items:qr' item.pk %}" alt="QR code with this item's details">
+          <div>
+            <p class="muted-2" style="margin:0 0 12px;font-size:14px">Print it and stick it on the pack. Scanning it on <em>Add item</em> fills in the name, expiry date and price.</p>
+            <a class="btn btn--sm" href="{% url 'items:qr' item.pk %}?download=1">{% icon 'download' %}Download</a>
+          </div>
+        </div>
+      </section>
+
+      {% if listings %}
+      <section class="panel glass">
+        <div class="panel__head"><h3>Shop</h3></div>
+        <ul class="list">
+          {% for l in listings %}
+          <li><a class="list__row" href="{{ l.get_absolute_url }}">
+            <div class="list__main">
+              <div class="list__title">{{ l.sale_price|money }} · {{ l.quantity }} left</div>
+              <div class="list__sub">Listed {{ l.created_at|date:"M j" }} · {{ l.orders.count }} order{{ l.orders.count|pluralize }}</div>
+            </div>
+            <span class="tag tag--{{ l.status }}">{{ l.get_status_display }}</span>
+          </a></li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      {% if records %}
+      <section class="panel glass">
+        <div class="panel__head"><h3>Impact</h3><a href="{% url 'impact:overview' %}">Overview</a></div>
+        <ul class="list">
+          {% for r in records %}
+          <li class="list__row">
+            <div class="list__main">
+              <div class="list__title">{{ r.get_outcome_display }}</div>
+              <div class="list__sub">{{ r.resolved_date|date:"M j, Y" }}{% if r.notes %} · {{ r.notes }}{% endif %}</div>
+            </div>
+            <span class="num" style="font-weight:600">{{ r.amount_value|money }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

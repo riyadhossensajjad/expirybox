@@ -1,0 +1,38 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Shop{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Shop</h1>
+      <p>Good things close to their date, at a discount. Pick up nearby or ask the seller to deliver.</p>
+    </div>
+    {% if user.is_authenticated %}<a class="btn" href="{% url 'marketplace:selling' %}">{% icon 'tag' %}Selling</a>{% endif %}
+  </div>
+
+  <form class="toolbar" method="get">
+    <label class="search"><span class="sr-only">Search listings</span>{% icon 'search' %}
+      <input class="input" type="search" name="q" value="{{ q }}" placeholder="Search items or areas">
+    </label>
+    <select class="select" name="category" onchange="this.form.submit()" aria-label="Category">
+      <option value="">All categories</option>
+      {% for c in categories %}<option value="{{ c.pk }}" {% if category_id == c.pk|stringformat:"d" %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+    <select class="select" name="sort" onchange="this.form.submit()" aria-label="Sort">
+      {% for key, label in sorts %}<option value="{{ key }}" {% if key == sort %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </form>
+
+  {% if listings %}
+  <div class="grid grid--cards">
+    {% for listing in listings %}{% include "partials/_listing_card.html" %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="empty glass">
+    <h3>{% if q or category_id %}No listings match{% else %}Nothing for sale right now{% endif %}</h3>
+    <p>{% if q or category_id %}Try another search or category.{% else %}When people list items that are expiring soon, they'll appear here.{% endif %}</p>
+    {% if q or category_id %}<a class="btn" href="{% url 'marketplace:browse' %}">Clear filters</a>{% elif user.is_authenticated %}<a class="btn" href="{% url 'items:list' %}">List one of your items</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

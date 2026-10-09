@@ -1,0 +1,54 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page page--mid">
+  <div class="page-head">
+    <div>
+      <h1>Notifications</h1>
+      <p>{% if unread_count %}{{ unread_count }} unread.{% else %}You're all caught up.{% endif %} New ones pop up on screen while you use {{ SITE_NAME }}.</p>
+    </div>
+    <div class="row">
+      <button class="btn btn--soft" type="button" data-desktop-alerts>{% icon 'bell' %}<span>Turn on desktop alerts</span></button>
+      {% if unread_count %}
+      <form method="post" action="{% url 'notifications:mark_all_read' %}">{% csrf_token %}
+        <button class="btn" type="submit">{% icon 'check' %}Mark all as read</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="segmented glass">
+      <a href="?show=all" class="{% if show != 'unread' %}is-active{% endif %}">All</a>
+      <a href="?show=unread" class="{% if show == 'unread' %}is-active{% endif %}">Unread</a>
+    </div>
+  </div>
+
+  {% if notes %}
+  <div class="panel glass panel--tight">
+    <ul class="list">
+      {% for n in notes %}
+      <li class="row" style="flex-wrap:nowrap;gap:4px">
+        <a class="list__row" style="flex:1;min-width:0" href="{% url 'notifications:open' n.pk %}">
+          {% include "partials/_note_icon.html" %}
+          <div class="list__main">
+            <div class="list__title" style="white-space:normal;font-weight:{% if n.is_read %}500{% else %}650{% endif %}">{{ n.message }}</div>
+            <div class="list__sub">{{ n.get_notification_type_display }} · {{ n.created_at|timesince }} ago</div>
+          </div>
+          <span class="dot{% if n.is_read %} dot--off{% endif %}" aria-label="{% if n.is_read %}Read{% else %}Unread{% endif %}"></span>
+        </a>
+        <form method="post" action="{% url 'notifications:delete' n.pk %}">{% csrf_token %}
+          <button class="icon-btn" type="submit" title="Delete" style="width:34px;height:34px;color:var(--ink-3)">{% icon 'x' 'Delete notification' %}</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% else %}
+  <div class="empty glass">
+    <h3>{% if show == 'unread' %}No unread notifications{% else %}No notifications yet{% endif %}</h3>
+    <p>Expiry reminders and order updates will show up here.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

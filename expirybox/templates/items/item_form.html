@@ -1,0 +1,77 @@
+{% extends "base.html" %}{% load shelf static %}
+{% block title %}{% if is_new %}Add item{% else %}Edit {{ item.item_name }}{% endif %}{% endblock %}
+{% block content %}
+<div class="page page--narrow">
+  <a class="back" href="{% if item %}{{ item.get_absolute_url }}{% else %}{% url 'items:list' %}{% endif %}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>{% if item %}{{ item.item_name }}{% else %}My items{% endif %}</a>
+  <div class="page-head">
+    <div>
+      <h1>{% if is_new %}Add an item{% else %}Edit item{% endif %}</h1>
+      <p>{% if is_new %}Scan the QR code on the pack, or type the details. The expiry date is all we need to start reminding you.{% else %}Changing the expiry date reschedules its reminders.{% endif %}</p>
+    </div>
+    {% if is_new %}
+    <button type="button" class="btn btn--primary" data-qr data-jsqr-src="{% asset 'js/vendor/jsQR.js' %}">{% icon 'qr' %}Scan QR code</button>
+    {% endif %}
+  </div>
+  {% if is_new %}
+  <div class="callout qr-result" data-qr-result hidden>
+    <span class="qr-result__icon">{% icon 'qr' %}</span>
+    <p></p>
+    <button type="button" class="toast__close" aria-label="Dismiss">{% icon 'x' %}</button>
+  </div>
+  {% endif %}
+  <form method="post" class="form panel glass" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_errors.html" %}
+    {% include "partials/_photo_field.html" with f=form.image remove=form.remove_photo current=item.image|photo_url label="Photo" cta="Add a product photo" %}
+    {% field form.item_name %}
+    <div class="form-grid">
+      {% field form.expiry_date %}
+      <div class="field{% if form.price.errors %} has-error{% endif %}">
+        <label class="field__label" for="{{ form.price.id_for_label }}">Price or value</label>
+        <div class="input-prefix"><span>{{ CURRENCY }}</span>{{ form.price }}</div>
+        {% for e in form.price.errors %}<span class="field__error">{{ e }}</span>{% empty %}<span class="field__hint">What you paid for it.</span>{% endfor %}
+      </div>
+      {% field form.category %}
+      {% field form.purchase_date %}
+      {% field form.provider %}
+    </div>
+    {% field form.reference_number %}
+    {% field form.description %}
+    <div class="row" style="justify-content:flex-end">
+      <a class="btn btn--plain" href="{% if item %}{{ item.get_absolute_url }}{% else %}{% url 'items:list' %}{% endif %}">Cancel</a>
+      <button class="btn btn--primary" type="submit">{% if is_new %}Add item{% else %}Save changes{% endif %}</button>
+    </div>
+  </form>
+</div>
+
+{% if is_new %}
+<div class="qr-modal" id="qr-modal" hidden role="dialog" aria-modal="true" aria-label="Scan QR code">
+  <div class="qr-card">
+    <div class="qr-scan">
+      <button type="button" class="qr-scan__close" data-qr-close aria-label="Close">{% icon 'x' %}</button>
+      <video playsinline muted></video>
+      <div class="qr-scan__frame" aria-hidden="true">
+        <i></i><i></i><i></i><i></i>
+        <span class="qr-scan__beam"></span>
+      </div>
+      <div class="qr-scan__idle" aria-hidden="true">
+        <span class="qr-scan__idle-icon">{% icon 'camera' %}</span>
+      </div>
+        <p class="qr-scan__hint" aria-live="polite">Move the QR code inside the frame</p>
+      <div class="qr-scan__done" aria-hidden="true">
+        <span class="qr-scan__glow"></span>
+        <span class="qr-scan__tick"><svg viewBox="0 0 52 52"><path d="M15.5 27.5l7.2 7.2L37 19.5"/></svg></span>
+      </div>
+    </div>
+
+    <p class="qr-card__status" data-qr-status aria-live="polite">Starting camera…</p>
+    <label class="btn btn--soft btn--block qr-card__upload">
+      {% icon 'camera' %}Upload a photo instead
+      <input type="file" accept="image/*" data-qr-file hidden>
+    </label>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}{% if is_new %}<script src="{% asset 'js/qr-scan.js' %}" defer></script>{% endif %}{% endblock %}

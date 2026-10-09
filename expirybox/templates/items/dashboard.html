@@ -1,0 +1,120 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Today{% endblock %}
+{% block workspace_class %}workspace--aside{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-head greet">
+    <div>
+      <h1>{{ greeting }}, {{ user.get_short_name }}.</h1>
+      <p>{% if expiring_count == 0 %}Nothing expires in the next {{ soon_days }} days.{% elif expiring_count == 1 %}One item expires in the next {{ soon_days }} days.{% else %}{{ expiring_count }} items expire in the next {{ soon_days }} days.{% endif %}</p>
+    </div>
+    <a class="btn btn--primary" href="{% url 'items:create' %}">{% icon 'plus' %}Add item</a>
+  </div>
+
+  <div class="grid stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:36px">
+    <a class="stat glass" href="{% url 'items:list' %}">
+      <div class="stat__value">{{ open_count }}</div>
+      <div class="stat__label">Items you're tracking</div>
+    </a>
+    <a class="stat glass" href="{% url 'items:list' %}">
+      <div class="stat__value" style="color:{% if expiring_count %}var(--soon){% else %}inherit{% endif %}">{{ expiring_count }}</div>
+      <div class="stat__label">Expiring within {{ soon_days }} days</div>
+    </a>
+    <a class="stat glass" href="{% url 'marketplace:selling' %}">
+      <div class="stat__value">{{ listed_count }}</div>
+      <div class="stat__label">Listed for sale</div>
+    </a>
+    <a class="stat glass" href="{% url 'impact:overview' %}">
+      <div class="stat__value" style="color:var(--fresh)">{{ summary.total_kept|default:0|money }}</div>
+      <div class="stat__label">Saved and earned in {{ year }}</div>
+    </a>
+  </div>
+
+  <div class="panel__head">
+    <h2>Expiring soon</h2>
+    <a href="{% url 'items:list' %}">All items</a>
+  </div>
+  {% if expiring %}
+  <div class="shelf">
+    {% for item in expiring %}
+    <a class="shelf__item glass" href="{{ item.get_absolute_url }}">
+      {% freshness_ring item 'md' %}
+      <div>
+        <div class="card__title">{{ item.item_name }}</div>
+        <div class="card__meta" style="font-size:13px">{{ item.expiry_date|date:"D, M j" }}</div>
+      </div>
+      {% if item.status == 'LISTED' %}<span class="tag tag--LISTED">Listed</span>{% elif item.can_be_listed %}<span class="tag tag--plain">Sell or use</span>{% endif %}
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty glass">
+    <div class="ring ring--md empty__ring" style="--pct:100"><div><span class="ring__num">✓</span></div></div>
+    <h3>You're all clear this week</h3>
+    <p>Items appear here {{ soon_days }} days before they expire, so you have time to use or sell them.</p>
+    <a class="btn" href="{% url 'items:create' %}">Add an item</a>
+  </div>
+  {% endif %}
+
+  <div class="split" style="margin-top:36px">
+    <section class="panel glass">
+      <div class="panel__head">
+        <h3>Orders to handle</h3>
+        <a href="{% url 'marketplace:selling' %}">Selling</a>
+      </div>
+      {% if seller_queue %}
+      <ul class="list">
+        {% for o in seller_queue %}
+        <li><a class="list__row" href="{{ o.get_absolute_url }}">
+          {% avatar o.buyer %}
+          <div class="list__main">
+            <div class="list__title">{{ o.quantity }} × {{ o.listing.item.item_name }}</div>
+            <div class="list__sub">{{ o.buyer.name }} · {{ o.get_delivery_method_display }}</div>
+          </div>
+          <div class="list__end"><div class="num" style="font-weight:600">{{ o.total_price|money }}</div><span class="tag tag--{{ o.status }}">{% if o.status == 'PAID' %}Ready to hand over{% else %}{{ o.get_status_display }}{% endif %}</span></div>
+        </a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted" style="margin:0">No open orders. When someone buys one of your listings it shows up here.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel glass">
+      <div class="panel__head">
+        <h3>Notifications</h3>
+        <a href="{% url 'notifications:list' %}">See all</a>
+      </div>
+      {% if recent_notifications %}
+      <ul class="list">
+        {% for n in recent_notifications %}
+        <li><a class="list__row" href="{% url 'notifications:open' n.pk %}">
+          {% include "partials/_note_icon.html" %}
+          <div class="list__main">
+            <div class="list__title" style="white-space:normal;font-weight:{% if n.is_read %}500{% else %}650{% endif %}">{{ n.message }}</div>
+            <div class="list__sub">{{ n.created_at|timesince }} ago</div>
+          </div>
+          <span class="dot{% if n.is_read %} dot--off{% endif %}"></span>
+        </a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted" style="margin:0">Reminders and order updates will appear here.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block aside %}
+<aside class="preview" aria-label="Your shop preview">
+  <div>
+    {% include "partials/_phone.html" with person=user name=user.name initials=user.initials meta=user.address|default:"Your public shop" links=shop_listings empty_text="Nothing listed yet. Open an item that's expiring soon and sell it here." join_text="Join "|add:user.get_short_name|add:" on ExpiryBox" %}
+    <p class="preview__label">Your shop, as buyers see it</p>
+  </div>
+  <div class="rail">
+    <a class="icon-btn" href="{% url 'accounts:seller' user.pk %}" title="Open your shop">{% icon 'store' 'Open your shop' %}</a>
+    <button class="icon-btn" type="button" data-share="{{ request.scheme }}://{{ request.get_host }}{% url 'accounts:seller' user.pk %}" title="Copy shop link">{% icon 'share' 'Copy shop link' %}</button>
+  </div>
+</aside>
+{% endblock %}
