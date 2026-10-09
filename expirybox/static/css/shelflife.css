@@ -1037,9 +1037,9 @@ a.stat:hover { border-color: var(--line-strong); transform: translateY(-2px); }
 .sidebar { transform-origin: 50% 50%; backface-visibility: hidden; }
 .sidebar.is-squish { animation: sb-squish .42s both; will-change: transform; }
 @keyframes sb-squish {
-  0%   { transform: scaleX(1);    animation-timing-function: cubic-bezier(.25, .1, .25, 1); }
-  40%  { transform: scaleX(1.09); animation-timing-function: cubic-bezier(.45, 0, .2, 1); }
-  100% { transform: scaleX(1); }
+  0%   { transform: scale(1, 1);       animation-timing-function: cubic-bezier(.25, .1, .25, 1); }
+  40%  { transform: scale(1.16, .985); animation-timing-function: cubic-bezier(.45, 0, .2, 1); }
+  100% { transform: scale(1, 1); }
 }
 @media (prefers-reduced-motion: reduce) {
   .sidebar.is-squish { animation: none; }
