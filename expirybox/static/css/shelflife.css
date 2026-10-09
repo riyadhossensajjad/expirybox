@@ -884,13 +884,12 @@ a.stat:hover { border-color: var(--line-strong); transform: translateY(-2px); }
   .main { height: auto; overflow: visible; }
   .scrim { display: block; }
   .sidebar {
-    position: fixed; top: 0; left: 0; bottom: 0;
-    width: min(300px, 86vw); height: 100vh;
-    margin: 0; border-radius: 0 var(--r-lg) var(--r-lg) 0;
-    transform: translateX(-105%);
-    transition: transform .35s var(--ease);
-    z-index: 70;
-  }
+  position: fixed; top: 12px; left: 12px; bottom: 12px;
+  top: calc(12px + env(safe-area-inset-top)); bottom: calc(12px + env(safe-area-inset-bottom));
+  width: min(300px, 82vw); height: auto;
+  margin: 0; border-radius: var(--r-lg);
+  transform: translateX(calc(-100% - 24px));
+    
   body.nav-open .sidebar { transform: none; box-shadow: var(--shadow-lg); }
   .scrim { position: fixed; inset: 0; z-index: 65; background: rgba(0, 0, 0, .35); opacity: 0; pointer-events: none; transition: opacity .3s; }
   body.nav-open .scrim { opacity: 1; pointer-events: auto; }
