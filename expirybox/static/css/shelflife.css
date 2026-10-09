@@ -1478,3 +1478,47 @@ body.is-welcome .banner__glow {
 }
 .qr-modal.is-searching .qr-scan__hint { opacity: 1; transform: translate(-50%, 0); }
 .qr-modal.is-found .qr-scan__hint { opacity: 0; }
+/* ---------------------------------------------------------------- phones & small tablets
+   Everything below only applies on narrow screens; the desktop layout is untouched. */
+@media (max-width: 860px) {
+  /* iPhones zoom the page when a text field under 16px is tapped — keep them at 16px. */
+  .input, .select, textarea, .searchdock input, .toolbar .select { font-size: 16px; }
+
+  /* Leave room at the bottom so the last card isn't hidden behind the floating
+     search bar and + button, plus the iPhone home-bar area. */
+  .main { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+  .fab { bottom: calc(18px + env(safe-area-inset-bottom)); }
+  .searchdock, .searchdock:focus-within { bottom: calc(18px + env(safe-area-inset-bottom)); }
+  .is-app .toasts { bottom: calc(86px + env(safe-area-inset-bottom)); }
+
+  /* While typing in a form, the on-screen keyboard pushes the floating bar up over
+     the fields — tuck the search bar and + button away until the field is left. */
+  .searchdock, .fab { transition: opacity .2s var(--ease), visibility .2s; }
+  body:has(.main :is(input, textarea, select):focus) :is(.searchdock, .searchdock__glow, .fab) {
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+
+  /* No grey flash on tap. */
+  a, button, summary, label { -webkit-tap-highlight-color: transparent; }
+}
+@media (max-width: 640px) {
+  /* Top banner: with the sentence hidden, push the button to the right edge. */
+  .banner__cta { margin-left: auto; }
+
+  /* Filter bars: search on its own row, the two dropdowns side by side. */
+  .toolbar { gap: 8px; }
+  .toolbar .search { flex: 1 1 100%; max-width: none; }
+  .toolbar .select { flex: 1 1 0; min-width: 0; padding-left: 14px; padding-right: 30px; background-position: right 12px center; text-overflow: ellipsis; }
+  .toolbar .segmented { flex: 1 1 100%; }
+  .toolbar .segmented a { flex: 1; text-align: center; padding: 8px 10px; }
+
+  /* Order / notification rows: let titles use two lines instead of "1 × Basmati r…". */
+  .list__row { gap: 12px; padding: 12px 4px; align-items: flex-start; }
+  .list__title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .list__end { max-width: 42%; }
+  .list__end .tag { white-space: normal; text-align: center; }
+
+  /* Pop-up notifications: one at a time on a phone so they don't cover the page.
+     The next one shows when the current one closes; all are on the Notifications page. */
+  .toasts .toast:not(:last-child) { display: none; }
+}

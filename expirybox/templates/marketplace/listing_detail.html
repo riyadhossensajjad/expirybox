@@ -2,7 +2,7 @@
 {% block title %}{{ listing.item.item_name }}{% endblock %}
 {% block content %}
 <div class="page">
-  <a class="back" href="{% if is_owner %}{% url 'marketplace:selling' %}{% else %}{% url 'marketplace:browse' %}{% endif %}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>{% if is_owner %}Selling{% else %}Marketplace{% endif %}</a>
+  <a class="back" href="{% if is_owner %}{% url 'marketplace:selling' %}{% else %}{% url 'marketplace:browse' %}{% endif %}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>{% if is_owner %}Selling{% else %}Shop{% endif %}</a>
 
   <div class="split">
     <div class="stack">

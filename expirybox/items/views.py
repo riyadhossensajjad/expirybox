@@ -237,8 +237,12 @@ def item_qr(request, pk):
 
     item = get_object_or_404(Item, pk=pk, user=request.user)
     qr = segno.make(qr_payload(item), error="m", micro=False)
-    svg = qr.svg_inline(scale=8, border=2, dark="#1e2330", light="#ffffff")
-    response = HttpResponse(svg, content_type="image/svg+xml")
+    # A standalone SVG file needs the xmlns declaration, or browsers won't show it in an <img>.
+    from io import BytesIO
+
+    buf = BytesIO()
+    qr.save(buf, kind="svg", scale=8, border=2, dark="#1e2330", light="#ffffff", xmldecl=False, svgns=True)
+    response = HttpResponse(buf.getvalue(), content_type="image/svg+xml")
     if request.GET.get("download"):
         safe = "".join(ch if ch.isalnum() else "-" for ch in item.item_name)[:40].strip("-") or "item"
         response["Content-Disposition"] = f'attachment; filename="expirybox-{safe}.svg"'
