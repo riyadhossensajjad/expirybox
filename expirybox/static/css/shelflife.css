@@ -1038,7 +1038,7 @@ a.stat:hover { border-color: var(--line-strong); transform: translateY(-2px); }
 .sidebar.is-squish { animation: sb-squish .42s both; will-change: transform; }
 @keyframes sb-squish {
   0%   { transform: scale(1, 1);       animation-timing-function: cubic-bezier(.25, .1, .25, 1); }
-  40%  { transform: scale(1.16, .985); animation-timing-function: cubic-bezier(.45, 0, .2, 1); }
+  40%  { transform: scale(1.26, .975); animation-timing-function: cubic-bezier(.45, 0, .2, 1); }
   100% { transform: scale(1, 1); }
 }
 @media (prefers-reduced-motion: reduce) {
