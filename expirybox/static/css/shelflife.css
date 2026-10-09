@@ -891,6 +891,7 @@ a.stat:hover { border-color: var(--line-strong); transform: translateY(-2px); }
     transform: translateX(calc(-100% - 24px));
     transition: transform .35s var(--ease);
     z-index: 70;
+    will-change: transform;
   }
   body.nav-open .sidebar { transform: none; box-shadow: var(--shadow-lg); }
   .scrim { position: fixed; inset: 0; z-index: 65; background: rgba(0, 0, 0, .35); opacity: 0; pointer-events: none; transition: opacity .3s; }

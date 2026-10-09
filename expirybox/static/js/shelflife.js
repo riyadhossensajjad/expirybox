@@ -91,7 +91,10 @@
         link.classList.add("is-active");
         placePill(link, true);
         var href = link.href;
-        setTimeout(function () { window.location.href = href; }, SQUISH_MS - 40);
+        var done = false;
+        var go = function () { if (!done) { done = true; window.location.href = href; } };
+        sidebar.addEventListener("animationend", function (ev) { if (ev.target === sidebar) go(); });
+        setTimeout(go, SQUISH_MS + 300);   // safety net if the animation is skipped
       });
     });
     // When the page actually unloads, remember where the highlight is on screen
