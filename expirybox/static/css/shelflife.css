@@ -1393,17 +1393,16 @@ a.stat:hover { border-color: var(--line-strong); transform: translateY(-2px); }
    When the search bar is clicked, a glow in the + button's gradient rises up from under it. */
 .searchdock__glow {
   position: fixed; z-index: 43;
-  bottom: -60px;
+  bottom: -90px;
   left: calc(var(--sidebar-w) + 12px + (100vw - var(--sidebar-w) - 12px) / 2);
-  width: min(760px, calc(100vw - var(--sidebar-w) - 140px));
-  height: 170px;
-  border-radius: 50%;
-  /* brightest point sits low, under the search bar */
-  background: radial-gradient(ellipse at 50% 70%, var(--fab-a) 0%, var(--fab-b) 42%, transparent 72%);
-  /* fade the upper part so only a soft hint shows above the bar */
-  -webkit-mask-image: linear-gradient(to top, #000 45%, rgba(0,0,0,.35) 70%, transparent 95%);
-          mask-image: linear-gradient(to top, #000 45%, rgba(0,0,0,.35) 70%, transparent 95%);
-  filter: blur(30px);
+  width: min(780px, calc(100vw - var(--sidebar-w) - 120px));
+  height: 220px;
+  background: radial-gradient(48% 55% at 50% 62%,
+    var(--fab-a) 0%,
+    color-mix(in srgb, var(--fab-b) 85%, transparent) 38%,
+    color-mix(in srgb, var(--fab-b) 35%, transparent) 68%,
+    transparent 100%);
+  filter: blur(22px);
   opacity: 0;
   transform: translateX(-50%) scale(.55, .4);
   transform-origin: 50% 100%;
