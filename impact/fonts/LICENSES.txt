@@ -1,0 +1,6 @@
+Fonts used only for the PDF impact report (impact/pdf.py).
+
+Inter-*.ttf  — Inter by Rasmus Andersson, SIL Open Font License 1.1 (https://rsms.me/inter/).
+               Converted from the OTF release to TrueType so ReportLab can embed it.
+Taka.ttf     — a one-glyph subset (the ৳ Taka sign) of GNU FreeSans,
+               GPL-3+ with the GNU FreeFont font exception (embedding in documents is allowed).
