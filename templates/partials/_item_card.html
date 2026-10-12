@@ -1,0 +1,15 @@
+{% load shelf %}
+<a class="card glass" href="{{ item.get_absolute_url }}">
+  {% if item.image %}<img class="card__cover" src="{{ item.image|photo_url }}" alt="" loading="lazy">{% else %}<div class="card__cover listing__art" data-tone="{{ item.freshness }}" aria-hidden="true"><span class="listing__glyph" style="width:56px;height:56px;font-size:1.5rem;border-radius:18px">{{ item.item_name|first|upper }}</span></div>{% endif %}
+  <div class="card__top">
+    {% freshness_ring item 'md' %}
+    <div style="min-width:0;flex:1">
+      <div class="card__title">{{ item.item_name }}</div>
+      <div class="card__meta">{{ item.category|default:"Uncategorised" }}{% if item.provider %} · {{ item.provider }}{% endif %}</div>
+    </div>
+  </div>
+  <div class="card__foot">
+    <span class="muted-2">{% if item.is_open %}{{ item.expiry_date|date:"M j" }}{% else %}{{ item.updated_at|date:"M j" }}{% endif %}{% if item.price %} · {{ item.price|money }}{% endif %}</span>
+    {% if item.status == 'ACTIVE' and item.was_bought %}<span class="tag tag--USED">Bought</span>{% else %}<span class="tag tag--{{ item.status }}">{% if item.status == 'LISTED' %}Listed{% else %}{{ item.get_status_display }}{% endif %}</span>{% endif %}
+  </div>
+</a>

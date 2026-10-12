@@ -1,0 +1,48 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Know before it expires{% endblock %}
+{% block content %}
+<div class="page">
+  <section class="hero">
+    <div>
+      <h1>Nothing in your cupboard expires by surprise.</h1>
+      <p class="hero__lede">Track what you own, get a pop-up before it expires, and sell what you won't use to someone nearby who will.</p>
+      <div class="row">
+        <a class="btn btn--primary" href="{% url 'accounts:signup' %}">Sign up free</a>
+        <a class="btn" href="{% url 'marketplace:browse' %}">{% icon 'bag' %}Browse the shop</a>
+      </div>
+    </div>
+    <div class="hero__stage" aria-hidden="true">
+      {% include "partials/_phone.html" with name="Fresh deals" initials="EB" meta="Expiring soon near you" links=phone_listings empty_text="Listings appear here as people sell items close to their date." join_text="Join ExpiryBox" %}
+    </div>
+  </section>
+
+  <section class="how" aria-label="How it works">
+    <div class="how__step glass">
+      <span class="how__n">1</span>
+      <h3>Add what you buy</h3>
+      <p>Groceries, medicine, skincare — anything with a date on it. Note where you bought it and the batch number.</p>
+    </div>
+    <div class="how__step glass">
+      <span class="how__n">2</span>
+      <h3>Get a pop-up in time</h3>
+      <p>A week before, three days before, the day before and on the day. Add your own reminders too.</p>
+    </div>
+    <div class="how__step glass">
+      <span class="how__n">3</span>
+      <h3>Use it or sell it</h3>
+      <p>Mark it used, or list it at a discount. Your impact page shows what you saved, earned and lost each year.</p>
+    </div>
+  </section>
+
+  {% if listings %}
+  <div class="panel__head">
+    <h2>Expiring soon near you</h2>
+    <a href="{% url 'marketplace:browse' %}">See all</a>
+  </div>
+  <div class="grid grid--cards">
+    {% for listing in listings %}{% include "partials/_listing_card.html" %}{% endfor %}
+  </div>
+  {% endif %}
+</div>
+<footer class="footer">{{ SITE_NAME }} — track it, use it, or pass it on.</footer>
+{% endblock %}

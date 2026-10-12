@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="140 45 320 595" width="320" height="595" fill="none">
+  <defs>
+    <linearGradient id="sand" x1="170" y1="470" x2="440" y2="615" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EFB3F2"/>
+      <stop offset="0.5" stop-color="#E03CF0"/>
+      <stop offset="1" stop-color="#5E17B0"/>
+    </linearGradient>
+    <clipPath id="glass">
+      <rect x="157" y="420" width="286" height="202" rx="53"/>
+    </clipPath>
+    <mask id="cutout" maskUnits="userSpaceOnUse" x="140" y="400" width="320" height="240">
+      <rect x="140" y="400" width="320" height="240" fill="#fff"/>
+      <path d="M286 448 L314 448 L305 509 A5 5 0 0 1 295 509 Z" fill="#000"/>
+      <circle cx="300" cy="538" r="10" fill="#000"/>
+    </mask>
+  </defs>
+
+  <!-- Sand -->
+  <g clip-path="url(#glass)" mask="url(#cutout)">
+    <path d="M162 548 Q162 522 186 509 L287 455 L313 455 L414 509 Q438 522 438 548
+             V640 H162 Z" fill="url(#sand)"/>
+  </g>
+
+  <!-- Hourglass outline -->
+  <path d="M210 62 H390 Q443 62 443 115 V190 Q443 226 405 240
+           C340 265 315 300 315 335 C315 370 340 405 405 430
+           Q443 444 443 480 V570 Q443 622 390 622 H210 Q157 622 157 570 V480
+           Q157 444 195 430 C260 405 285 370 285 335 C285 300 260 265 195 240
+           Q157 226 157 190 V115 Q157 62 210 62 Z"
+        stroke="#B98AFF" stroke-width="14" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,19 @@
+{% load shelf %}
+<a class="card listing glass" href="{{ listing.get_absolute_url }}">
+  <div class="listing__art" data-tone="{{ listing.item.freshness }}">
+    {% if listing.item.image %}<img class="listing__img" src="{{ listing.item.image|photo_url }}" alt="{{ listing.item.item_name }}" loading="lazy">{% else %}<span class="listing__glyph" aria-hidden="true">{{ listing.item.item_name|first|upper }}</span>{% endif %}
+    {% if listing.discount_pct %}<span class="listing__deal tag tag--deal">−{{ listing.discount_pct }}%</span>{% endif %}
+    <span class="tag tag--glass tag--{{ listing.item.freshness }}" style="position:absolute;right:12px;top:12px">{{ listing.item.days_left_label }}</span>
+  </div>
+  <div class="listing__body">
+    <div>
+      <div class="card__title">{{ listing.item.item_name }}</div>
+      <div class="card__meta">{{ listing.item.category|default:"Other" }}</div>
+    </div>
+    <div class="price">{{ listing.sale_price|money }}{% if listing.discount_pct %}<s>{{ listing.original_price|money }}</s>{% endif %}</div>
+    <div class="card__foot">
+      <span class="row" style="gap:6px;color:var(--ink-2)"><span style="width:15px;height:15px;display:inline-flex">{% icon 'pin' %}</span>{{ listing.pickup_location|truncatechars:22 }}</span>
+      <span class="muted">{{ listing.quantity }} left</span>
+    </div>
+  </div>
+</a>

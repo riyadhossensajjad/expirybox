@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Not found{% endblock %}
+{% block content %}
+<div class="auth">
+  <div class="auth__card glass glass--strong" style="text-align:center">
+    <div class="ring ring--lg" data-tone="gone" style="--pct:0;margin:0 auto"><div><span class="ring__num">404</span><span class="ring__unit">not found</span></div></div>
+    <h1>This page has expired</h1>
+    <p>The link may be old, or the item belongs to someone else.</p>
+    <a class="btn btn--primary" href="{% url 'home' %}">Go home</a>
+  </div>
+</div>
+{% endblock %}

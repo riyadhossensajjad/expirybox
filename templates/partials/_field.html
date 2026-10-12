@@ -1,0 +1,7 @@
+<div class="field{% if f.errors %} has-error{% endif %}">
+  {% if f.field.widget.input_type != 'hidden' %}<label class="field__label" for="{{ f.id_for_label }}">{{ f.label }}{% if not f.field.required %} <span class="muted" style="font-weight:400">(optional)</span>{% endif %}</label>{% endif %}
+  {{ f }}
+  {% if f.errors %}{% for e in f.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
+  {% elif hint %}<span class="field__hint">{{ hint }}</span>
+  {% elif f.help_text %}<span class="field__hint">{{ f.help_text }}</span>{% endif %}
+</div>
