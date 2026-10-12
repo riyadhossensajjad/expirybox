@@ -1,0 +1,78 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Impact {{ year }}{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Your impact in {{ year }}</h1>
+      <p>Every item ends one of three ways: sold to someone who'll use it, lost to expiry, or used in time.</p>
+    </div>
+    <div class="row">
+      {% if years|length > 1 %}
+      <form method="get"><select class="select" name="year" onchange="this.form.submit()" aria-label="Year" style="border-radius:var(--r-pill)">
+        {% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+      </select></form>
+      {% endif %}
+      <a class="btn" href="{% url 'impact:export_pdf' %}?year={{ year }}&amp;view=1" target="_blank" rel="noopener">{% icon 'receipt' %}Preview PDF</a>
+      <a class="btn btn--primary" href="{% url 'impact:export_pdf' %}?year={{ year }}" download>{% icon 'download' %}Export PDF</a>
+    </div>
+  </div>
+
+  <div class="impact-grid">
+    {% for s in sections %}
+    <section class="impact-card glass impact-card--{{ s.kind }}" aria-labelledby="impact-{{ s.kind }}">
+      <div class="impact-card__head">
+        <span class="impact-card__icon">{% icon s.icon %}</span>
+        <h3 id="impact-{{ s.kind }}">{{ s.title }}</h3>
+      </div>
+      <div class="impact-card__stat">
+        <div class="ring impact-card__ring" style="--pct: {{ s.share }}" role="img" aria-label="{{ s.share }}% of tracked value">
+          <div><span class="ring__num">{{ s.share }}%</span><span class="ring__unit">of total</span></div>
+        </div>
+        <div class="impact-card__figures">
+          <div class="impact-card__value num">{{ s.total|money }}</div>
+          <div class="impact-card__meta">{{ s.count }} {{ s.noun }}</div>
+        </div>
+      </div>
+      <p class="impact-card__blurb">{{ s.blurb }}</p>
+
+      {% if s.records %}
+      <ul class="list impact-card__list">
+        {% for r in s.records %}
+        <li class="list__row">
+          <div class="list__main">
+            <a class="list__title" href="{{ r.item.get_absolute_url }}" style="display:block">{{ r.item.item_name }}</a>
+            <div class="list__sub">{{ r.resolved_date|date:"M j" }}</div>
+          </div>
+          <a class="impact-card__amount num" href="{% url 'impact:record_edit' r.pk %}" title="Edit value">{{ r.amount_value|money }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if s.more %}<p class="muted" style="margin:8px 0 0;font-size:13px">and {{ s.more }} more</p>{% endif %}
+      {% else %}
+      <p class="impact-card__empty">{{ s.empty }}</p>
+      {% endif %}
+    </section>
+    {% endfor %}
+  </div>
+
+  {% if summary and total_items %}
+  <section class="panel glass" style="margin-top:22px">
+    <div class="row" style="gap:28px;align-items:center">
+      <div class="ring ring--md" data-tone="{% if summary.rescue_rate >= 70 %}fresh{% elif summary.rescue_rate >= 40 %}soon{% else %}urgent{% endif %}" style="--pct: {{ summary.rescue_rate|default:0 }};--size:96px;--stroke:9px">
+        <div><span class="ring__num" style="font-size:1.2rem">{{ summary.rescue_rate|default:0 }}%</span><span class="ring__unit">kept</span></div>
+      </div>
+      <div class="spacer" style="min-width:220px">
+        <h3>{{ summary.total_kept|money }} kept out of the bin</h3>
+        <p class="muted-2" style="margin:6px 0 0">Earned plus saved, against {{ summary.total_lost|money }} lost across {{ total_items }} item{{ total_items|pluralize }} this year.</p>
+      </div>
+      <div class="stackbar" aria-hidden="true">
+        {% for s in sections %}{% if s.share %}<span class="stackbar__seg stackbar__seg--{{ s.kind }}" style="flex:{{ s.share }}" title="{{ s.title }}: {{ s.share }}%"></span>{% endif %}{% endfor %}
+      </div>
+    </div>
+  </section>
+  {% elif not total_items %}
+  <p class="muted" style="margin-top:20px">Nothing resolved in {{ year }} yet. When you sell an item, mark one as used, or something expires, it's counted here.</p>
+  {% endif %}
+</div>
+{% endblock %}

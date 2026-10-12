@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Edit impact{% endblock %}
+{% block content %}
+<div class="page page--narrow">
+  <a class="back" href="{% url 'impact:overview' %}?year={{ record.resolved_date.year }}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>Impact</a>
+  <div class="page-head"><div>
+    <h1>{{ record.item.item_name }}</h1>
+    <p>{{ record.get_outcome_display }} on {{ record.resolved_date|date:"M j, Y" }}. Adjust the value if it's off.</p>
+  </div></div>
+  <form method="post" class="form panel glass" novalidate>
+    {% csrf_token %}
+    <div class="field{% if form.amount_value.errors %} has-error{% endif %}">
+      <label class="field__label" for="id_amount_value">Value</label>
+      <div class="input-prefix"><span>{{ CURRENCY }}</span>{{ form.amount_value }}</div>
+      {% for e in form.amount_value.errors %}<span class="field__error">{{ e }}</span>{% endfor %}
+    </div>
+    {% field form.notes %}
+    <div class="row" style="justify-content:flex-end">
+      <a class="btn btn--plain" href="{% url 'impact:overview' %}">Cancel</a>
+      <button class="btn btn--primary" type="submit">Save value</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
