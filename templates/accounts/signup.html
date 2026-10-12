@@ -1,0 +1,26 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<div class="auth">
+  <div class="auth__card glass glass--strong" style="width:min(520px,100%)">
+    <div class="auth__mark"><span class="brand__mark"></span></div>
+    <h1>Create your account</h1>
+    <p>Start tracking expiry dates in under a minute.</p>
+    <form method="post" class="form" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% include "partials/_form_errors.html" %}
+      {% include "partials/_photo_field.html" with f=form.avatar remove=form.remove_photo label="Profile picture" round=True cta="Upload a profile picture" %}
+      <div class="form-grid">
+        <div class="span-2">{% field form.name %}</div>
+        <div class="span-2">{% field form.email %}</div>
+        {% field form.phone %}
+        {% field form.address %}
+        {% field form.password1 "At least 8 characters, not only numbers." %}
+        {% field form.password2 "Type it once more." %}
+      </div>
+      <button class="btn btn--primary btn--block" type="submit">Create account</button>
+    </form>
+    <p class="auth__alt">Already have one? <a href="{% url 'accounts:login' %}">Sign in</a></p>
+  </div>
+</div>
+{% endblock %}
