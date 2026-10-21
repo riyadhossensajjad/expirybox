@@ -1,0 +1,54 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Selling{% endblock %}
+{% block content %}
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Selling</h1>
+      <p>Your listings and the orders buyers have placed on them.</p>
+    </div>
+    <a class="btn" href="{% url 'marketplace:buying' %}">My orders</a>
+  </div>
+
+  <div class="split">
+    <section class="panel glass">
+      <div class="panel__head"><h3>Sales</h3></div>
+      {% if sales %}
+      <ul class="list">
+        {% for o in sales %}
+        <li><a class="list__row" href="{{ o.get_absolute_url }}">
+          {% avatar o.buyer %}
+          <div class="list__main">
+            <div class="list__title">{{ o.quantity }} × {{ o.listing.item.item_name }}</div>
+            <div class="list__sub">#{{ o.pk }} · {{ o.buyer.name }} · {{ o.created_at|date:"M j" }}</div>
+          </div>
+          <div class="list__end"><div class="num" style="font-weight:600">{{ o.total_price|money }}</div><span class="tag tag--{{ o.status }}">{{ o.get_status_display }}</span></div>
+        </a></li>
+        {% endfor %}
+      </ul>
+      {% else %}<p class="muted" style="margin:0">No sales yet.</p>{% endif %}
+    </section>
+
+    <section class="panel glass">
+      <div class="panel__head"><h3>Listings</h3></div>
+      {% if listings %}
+      <ul class="list">
+        {% for l in listings %}
+        <li><a class="list__row" href="{{ l.get_absolute_url }}">
+          {% freshness_ring l.item 'sm' %}
+          <div class="list__main">
+            <div class="list__title">{{ l.item.item_name }}</div>
+            <div class="list__sub">{{ l.sale_price|money }} · {{ l.quantity }} left</div>
+          </div>
+          <span class="tag tag--{{ l.status }}">{{ l.get_status_display }}</span>
+        </a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="muted">Nothing listed. Open an item that's expiring soon and choose "Sell in the shop".</p>
+      <a class="btn btn--sm" href="{% url 'items:list' %}">Go to my items</a>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

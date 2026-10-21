@@ -1,0 +1,36 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}{% if is_new %}Sell {{ item.item_name }}{% else %}Edit listing{% endif %}{% endblock %}
+{% block content %}
+<div class="page page--narrow">
+  <a class="back" href="{% if listing %}{{ listing.get_absolute_url }}{% else %}{{ item.get_absolute_url }}{% endif %}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>{{ item.item_name }}</a>
+  <div class="page-head">
+    <div class="row" style="gap:18px;flex-wrap:nowrap">
+      {% freshness_ring item 'md' %}
+      <div>
+        <h1 style="font-size:var(--t-xl)">{% if is_new %}Sell {{ item.item_name }}{% else %}Edit listing{% endif %}</h1>
+        <p style="margin-top:4px">{{ item.days_left_label }}. Buyers see the expiry date on the listing.</p>
+      </div>
+    </div>
+  </div>
+  <form method="post" class="form panel glass" novalidate>
+    {% csrf_token %}
+    {% include "partials/_form_errors.html" %}
+    <div class="form-grid">
+      {% for f in form %}{% if f.name == 'original_price' or f.name == 'sale_price' %}
+      <div class="field{% if f.errors %} has-error{% endif %}">
+        <label class="field__label" for="{{ f.id_for_label }}">{{ f.label }}</label>
+        <div class="input-prefix"><span>{{ CURRENCY }}</span>{{ f }}</div>
+        {% for e in f.errors %}<span class="field__error">{{ e }}</span>{% empty %}<span class="field__hint">{% if f.name == 'original_price' %}What you paid, per item.{% else %}A real discount sells faster.{% endif %}</span>{% endfor %}
+      </div>
+      {% endif %}{% endfor %}
+      {% field form.quantity %}
+      {% field form.available_until "No later than the expiry date." %}
+      <div class="span-2">{% field form.pickup_location "An area, not your full address — share that after someone buys." %}</div>
+    </div>
+    <div class="row" style="justify-content:flex-end">
+      {% if is_new %}<button class="btn btn--plain" name="save_draft" type="submit">Save as draft</button>{% else %}<a class="btn btn--plain" href="{{ listing.get_absolute_url }}">Cancel</a>{% endif %}
+      <button class="btn btn--primary" type="submit">{% if is_new %}Publish listing{% else %}Save changes{% endif %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

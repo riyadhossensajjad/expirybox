@@ -1,0 +1,29 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Pay for order #{{ order.pk }}{% endblock %}
+{% block content %}
+<div class="page page--narrow">
+  <a class="back" href="{{ order.get_absolute_url }}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>Order #{{ order.pk }}</a>
+  <div class="page-head"><div>
+    <h1>Pay {{ order.total_price|money }}</h1>
+    <p>{{ order.quantity }} × {{ order.listing.item.item_name }} from {{ order.listing.seller.name }}.</p>
+  </div></div>
+
+  <form method="post" class="form panel glass glass--strong">
+    {% csrf_token %}
+    <fieldset style="border:0;padding:0;margin:0">
+      <legend class="field__label" style="margin-bottom:8px">Payment method</legend>
+      <div class="choices choices--row">
+        {% for radio in form.method %}
+        <label class="choice">{{ radio.tag }}<span class="choice__body"><span><span class="choice__title">{{ radio.choice_label }}</span>
+          <span class="choice__sub">{% if radio.data.value == 'CARD' %}Visa, Mastercard{% elif radio.data.value == 'CASH' %}Pay the seller in person{% else %}Mobile wallet{% endif %}</span></span></span></label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <div class="row row--between" style="padding-top:14px;border-top:1px solid var(--hairline)">
+      <span class="muted-2">Total</span><strong class="price">{{ order.total_price|money }}</strong>
+    </div>
+    <button class="btn btn--primary btn--block" type="submit">{% icon 'card' %}Pay {{ order.total_price|money }}</button>
+    <p class="muted" style="margin:0;font-size:13px;text-align:center">Demo checkout: a payment record is created, but no real money moves.</p>
+  </form>
+</div>
+{% endblock %}
