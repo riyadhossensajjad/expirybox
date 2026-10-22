@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ item.item_name }}{% endblock %}
+{% block content %}
+<div class="auth">
+  <div class="auth__card glass glass--strong">
+    <h1>Delete {{ item.item_name }}?</h1>
+    <p>Its reminders, draft listings and impact records go with it. If you used it or it expired, mark it instead so it counts toward your impact.</p>
+    <form method="post" class="row" style="justify-content:center">
+      {% csrf_token %}
+      <a class="btn" href="{{ item.get_absolute_url }}">Keep item</a>
+      <button class="btn btn--danger-solid" type="submit">Delete item</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
