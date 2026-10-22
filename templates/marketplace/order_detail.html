@@ -1,0 +1,111 @@
+{% extends "base.html" %}{% load shelf %}
+{% block title %}Order #{{ order.pk }}{% endblock %}
+{% block content %}
+<div class="page page--mid">
+  <a class="back" href="{% if is_buyer %}{% url 'marketplace:buying' %}{% else %}{% url 'marketplace:selling' %}{% endif %}"><span style="width:16px;height:16px;display:inline-flex">{% icon 'chevron-left' %}</span>{% if is_buyer %}My orders{% else %}Selling{% endif %}</a>
+
+  <div class="page-head">
+    <div>
+      <h1>Order #{{ order.pk }}</h1>
+      <p>{% if is_buyer %}From {{ order.listing.seller.name }}{% else %}Bought by {{ order.buyer.name }}{% endif %} · placed {{ order.created_at|date:"M j, g:i A" }}</p>
+    </div>
+    <span class="tag tag--{{ order.status }}" style="font-size:13px;padding:5px 12px">{{ order.get_status_display }}</span>
+  </div>
+
+  <div class="stack">
+    <section class="panel glass">
+      {% if order.status == 'CANCELLED' or order.status == 'REFUNDED' %}
+      <div class="callout callout--bad"><p>This order was {{ order.get_status_display|lower }}{% if order.status == 'REFUNDED' %} and the payment returned to the buyer{% endif %}. The stock went back to the listing.</p></div>
+      {% else %}
+      <div class="track" aria-label="Order progress">
+        <div class="track__step is-done"><span class="track__bar"></span>Placed</div>
+        <div class="track__step {% if order.status == 'PAID' or order.status == 'COMPLETED' %}is-done{% endif %}"><span class="track__bar"></span>Paid</div>
+        <div class="track__step {% if order.status == 'COMPLETED' %}is-done{% endif %}"><span class="track__bar"></span>{% if order.delivery_method == 'PICKUP' %}Picked up{% else %}Delivered{% endif %}</div>
+      </div>
+      {% endif %}
+
+      <a class="row" href="{{ order.listing.get_absolute_url }}" style="gap:16px;margin-top:22px;flex-wrap:nowrap">
+        {% freshness_ring order.listing.item 'sm' %}
+        <div class="spacer"><strong>{{ order.listing.item.item_name }}</strong><div class="muted" style="font-size:13px">{{ order.quantity }} × {{ order.listing.sale_price|money }} · {{ order.get_delivery_method_display }}</div></div>
+        <span class="price">{{ order.total_price|money }}</span>
+      </a>
+
+      <div class="row" style="margin-top:22px">
+        {% if is_buyer and order.status == 'PENDING' %}
+          <a class="btn btn--primary" href="{% url 'marketplace:order_pay' order.pk %}">{% icon 'card' %}Pay {{ order.total_price|money }}</a>
+        {% endif %}
+        {% if is_buyer and order.status == 'PAID' %}
+          <form method="post" action="{% url 'marketplace:order_action' order.pk 'complete' %}" data-confirm="Confirm you've {% if order.delivery_method == 'PICKUP' %}picked up{% else %}received{% endif %} this order?">{% csrf_token %}<button class="btn btn--primary" type="submit">{% icon 'check' %}{% if order.delivery_method == 'PICKUP' %}I've picked it up{% else %}I've received it{% endif %}</button></form>
+        {% endif %}
+        {% if not is_buyer and order.status == 'PAID' %}
+          <form method="post" action="{% url 'marketplace:order_action' order.pk 'complete' %}">{% csrf_token %}<button class="btn btn--primary" type="submit">{% icon 'check' %}{% if order.delivery_method == 'PICKUP' %}Buyer picked it up{% else %}Mark as delivered{% endif %}</button></form>
+          <form method="post" action="{% url 'marketplace:order_action' order.pk 'refund' %}" data-confirm="Refund {{ order.total_price|money }} to {{ order.buyer.name }}?">{% csrf_token %}<button class="btn btn--danger" type="submit">Refund</button></form>
+        {% endif %}
+        {% if order.status == 'PENDING' %}
+          <form method="post" action="{% url 'marketplace:order_action' order.pk 'cancel' %}" data-confirm="Cancel this order?">{% csrf_token %}<button class="btn btn--danger" type="submit">Cancel order</button></form>
+        {% endif %}
+      </div>
+      {% if not is_buyer and order.status == 'PENDING' %}<p class="muted" style="margin:14px 0 0;font-size:14px">Waiting for {{ order.buyer.get_short_name }} to pay. The items are held for this order.</p>{% endif %}
+      {% if is_buyer and order.status == 'PAID' %}<p class="muted" style="margin:14px 0 0;font-size:14px">Paid. Once you {% if order.delivery_method == 'PICKUP' %}pick it up{% else %}receive it{% endif %}, confirm here and it moves into your items with expiry reminders.</p>{% endif %}
+      {% if is_buyer and order.status == 'COMPLETED' and order.buyer_item %}<p style="margin:14px 0 0;font-size:14px"><a href="{{ order.buyer_item.get_absolute_url }}" style="font-weight:700;text-decoration:underline">View it in your items</a></p>{% endif %}
+    </section>
+
+    <div class="grid grid--2">
+      <section class="panel glass">
+        <h3 style="margin-bottom:14px">{% if is_buyer %}Seller{% else %}Buyer{% endif %}</h3>
+        {% if is_buyer %}{% with p=order.listing.seller %}
+          <dl class="facts"><dt>Name</dt><dd><a href="{% url 'accounts:seller' p.pk %}">{{ p.name }}</a></dd>
+          {% if order.status != 'PENDING' %}<dt>Phone</dt><dd>{{ p.phone|default:"—" }}</dd>{% endif %}
+          <dt>Pickup</dt><dd>{{ order.listing.pickup_location }}</dd></dl>
+        {% endwith %}{% else %}{% with p=order.buyer %}
+          <dl class="facts"><dt>Name</dt><dd>{{ p.name }}</dd>
+          {% if order.status != 'PENDING' %}<dt>Phone</dt><dd>{{ p.phone|default:"—" }}</dd>
+          {% if order.delivery_method == 'DELIVERY' %}<dt>Deliver to</dt><dd>{{ p.address|default:"Ask the buyer" }}</dd>{% endif %}{% endif %}</dl>
+        {% endwith %}{% endif %}
+        {% if order.status == 'PENDING' %}<p class="muted" style="margin:12px 0 0;font-size:13px">Contact details appear once the order is paid.</p>{% endif %}
+      </section>
+
+      <section class="panel glass">
+        <h3 style="margin-bottom:14px">Payment</h3>
+        {% if payment %}
+        <dl class="facts">
+          <dt>Amount</dt><dd>{{ payment.amount|money }}</dd>
+          <dt>Method</dt><dd>{{ payment.get_method_display }}</dd>
+          <dt>Reference</dt><dd class="num">{{ payment.transaction_ref }}</dd>
+          <dt>Paid</dt><dd>{{ payment.paid_at|date:"M j, g:i A" }}</dd>
+          <dt>Status</dt><dd><span class="tag tag--{{ payment.status }}">{{ payment.get_status_display }}</span></dd>
+        </dl>
+        {% else %}<p class="muted" style="margin:0">Not paid yet.</p>{% endif %}
+      </section>
+    </div>
+
+    {% if review %}
+    <section class="panel glass">
+      <h3>Review</h3>
+      <p style="margin:8px 0 4px"><span style="color:#ffb300;font-size:20px;letter-spacing:2px">{{ review.rating|stars }}</span></p>
+      {% if review.comment %}<p style="margin:0">{{ review.comment }}</p>{% endif %}
+      <p class="muted" style="margin:6px 0 0;font-size:13px">{{ review.reviewer.name }} · {{ review.created_at|date:"M j, Y" }}</p>
+    </section>
+    {% elif review_form %}
+    <section class="panel glass">
+      <h3>How did it go?</h3>
+      <p class="muted" style="margin:4px 0 16px">Your review helps other buyers trust {{ order.listing.seller.get_short_name }}.</p>
+      <form method="post" action="{% url 'marketplace:review_create' order.pk %}" class="form">
+        {% csrf_token %}
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend class="field__label" style="margin-bottom:4px">Rating</legend>
+          <div class="rating">
+            {% for radio in review_form.rating %}
+            <input type="radio" name="rating" value="{{ radio.data.value }}" id="star{{ radio.data.value }}" required>
+            <label for="star{{ radio.data.value }}" title="{{ radio.data.value }} star{{ radio.data.value|pluralize }}">★</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+        {% field review_form.comment %}
+        <div><button class="btn btn--primary" type="submit">Post review</button></div>
+      </form>
+    </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
