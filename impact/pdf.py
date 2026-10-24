@@ -51,8 +51,6 @@ LIME = colors.HexColor("#43e660")
 BLUE = colors.HexColor("#2563eb")
 RED = colors.HexColor("#e5484d")
 GREEN = colors.HexColor("#16a34a")
-AMBER = colors.HexColor("#fbbf24")
-VIOLET = colors.HexColor("#8b3dff")
 WHITE = colors.white
 
 TONES = {OutcomeStatus.SOLD: BLUE, OutcomeStatus.LOST: RED, OutcomeStatus.SAVED: GREEN}
