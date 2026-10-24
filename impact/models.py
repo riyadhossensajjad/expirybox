@@ -9,11 +9,7 @@ class OutcomeStatus(models.TextChoices):
 
 
 class ImpactRecord(models.Model):
-    """
-    App4_Impact.ImpactRecord
-    pk, item, order, outcome, amountValue, resolvedDate, notes, createdAt
-    One record per item outcome: used it, sold it, or let it expire.
-    """
+
 
     item = models.ForeignKey("items.Item", on_delete=models.CASCADE, related_name="impact_records")
     order = models.ForeignKey(
