@@ -29,11 +29,7 @@ class ImpactRecord(models.Model):
 
 
 class ImpactSummary(models.Model):
-    """
-    App4_Impact.ImpactSummary
-    pk, user, year, totalSaved, totalLost, totalEarned
-    Aggregates a user's ImpactRecords for one year.
-    """
+
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="impact_summaries"
